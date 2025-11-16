@@ -1,0 +1,38 @@
+{
+  "name": "FamilyFinance - Full Stack",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "installMaven": "true"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "Dart-Code.flutter",
+        "alexisvt.flutter-snippets"
+      ],
+      "settings": {
+        "dart.flutterSdkPath": "/home/vscode/flutter"
+      }
+    }
+  },
+  "forwardPorts": [8080, 5000, 5432],
+  "portsAttributes": {
+    "8080": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "5000": {
+      "label": "Flutter Web",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "vscode"
+}

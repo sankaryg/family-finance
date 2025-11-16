@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: family-finance
+  datasource:
+    url: jdbc:postgresql://localhost:5432/familyfinance
+    username: dev
+    password: devpass
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
