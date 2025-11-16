@@ -18,7 +18,7 @@
         "alexisvt.flutter-snippets"
       ],
       "settings": {
-        "dart.flutterSdkPath": "/home/vscode/flutter"
+        "dart.flutterSdkPath": "/home/codespace/flutter"
       }
     }
   },

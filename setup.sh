@@ -36,7 +36,7 @@ cat > .devcontainer/devcontainer.json << 'DEVCONTAINER_EOF'
         "alexisvt.flutter-snippets"
       ],
       "settings": {
-        "dart.flutterSdkPath": "/home/vscode/flutter"
+        "dart.flutterSdkPath": "/home/codespace/flutter"
       }
     }
   },
@@ -65,13 +65,13 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     curl git unzip xz-utils zip libglu1-mesa \
     clang cmake ninja-build pkg-config libgtk-3-dev
 
-USER vscode
-WORKDIR /home/vscode
+USER codespace
+WORKDIR /home/codespace
 
 RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 \
-    && echo 'export PATH="$PATH:/home/vscode/flutter/bin"' >> ~/.bashrc
+    && echo 'export PATH="$PATH:/home/codespace/flutter/bin"' >> ~/.bashrc
 
-ENV PATH="${PATH}:/home/vscode/flutter/bin"
+ENV PATH="${PATH}:/home/codespace/flutter/bin"
 RUN flutter precache --web \
     && flutter config --enable-web \
     && flutter config --no-analytics \
@@ -87,8 +87,8 @@ set -e
 
 echo "🚀 Setting up development environment..."
 
-export PATH="$PATH:/home/vscode/flutter/bin"
-mkdir -p /workspace/logs
+export PATH="$PATH:/home/codespace/flutter/bin"
+mkdir -p /workspaces/family-finance/logs
 
 echo "🗄️ Starting PostgreSQL..."
 docker run -d --name postgres-dev --network host \
@@ -100,15 +100,15 @@ docker run -d --name postgres-dev --network host \
 echo "⏳ Waiting for PostgreSQL..."
 timeout 60 bash -c 'until docker exec postgres-dev pg_isready 2>/dev/null; do sleep 2; done'
 
-if [ -f "/workspace/backend/pom.xml" ]; then
-  cd /workspace/backend && chmod +x mvnw && ./mvnw dependency:resolve -q
+if [ -f "/workspaces/family-finance/backend/pom.xml" ]; then
+  cd /workspaces/family-finance/backend && chmod +x mvnw && ./mvnw dependency:resolve -q
 fi
 
-if [ -f "/workspace/flutter_app/pubspec.yaml" ]; then
-  cd /workspace/flutter_app && flutter pub get
+if [ -f "/workspaces/family-finance/flutter_app/pubspec.yaml" ]; then
+  cd /workspaces/family-finance/flutter_app && flutter pub get
 fi
 
-chmod +x /workspace/scripts/*.sh
+chmod +x /workspaces/family-finance/scripts/*.sh
 
 echo "✅ Setup complete! Run: ./scripts/dev.sh"
 SETUP_EOF
@@ -447,7 +447,7 @@ cat > scripts/dev.sh << 'DEV_EOF'
 set -e
 
 echo "🚀 Starting FamilyFinance Development"
-mkdir -p /workspace/logs
+mkdir -p /workspaces/family-finance/logs
 
 if ! docker ps | grep -q postgres-dev; then
   docker start postgres-dev 2>/dev/null || \
@@ -458,8 +458,8 @@ if ! docker ps | grep -q postgres-dev; then
 fi
 
 echo "🔧 Starting Backend..."
-cd /workspace/backend
-./mvnw spring-boot:run > /workspace/logs/backend.log 2>&1 &
+cd /workspaces/family-finance/backend
+./mvnw spring-boot:run > /workspaces/family-finance/logs/backend.log 2>&1 &
 BACKEND_PID=$!
 
 echo "⏳ Waiting for backend..."
@@ -467,9 +467,9 @@ timeout 120 bash -c 'until curl -s http://localhost:8080/api/health > /dev/null;
 echo "✅ Backend ready!"
 
 echo "🎨 Starting Flutter..."
-cd /workspace/flutter_app
+cd /workspaces/family-finance/flutter_app
 flutter run -d web-server --web-port=5000 --web-hostname=0.0.0.0 \
-  --dart-define=CODESPACE_NAME="${CODESPACE_NAME:-}" > /workspace/logs/flutter.log 2>&1 &
+  --dart-define=CODESPACE_NAME="${CODESPACE_NAME:-}" > /workspaces/family-finance/logs/flutter.log 2>&1 &
 FLUTTER_PID=$!
 
 echo ""
